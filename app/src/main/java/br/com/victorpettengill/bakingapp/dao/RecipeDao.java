@@ -7,8 +7,6 @@ import java.util.List;
 import br.com.victorpettengill.bakingapp.beans.Recipe;
 import br.com.victorpettengill.bakingapp.helper.DaoHelper;
 import br.com.victorpettengill.bakingapp.network.NetworkUtils;
-import okhttp3.Request;
-import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
