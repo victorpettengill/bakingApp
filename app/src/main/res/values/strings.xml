@@ -2,4 +2,6 @@
     <string name="app_name">BakingApp</string>
     <string name="action_settings">Settings</string>
     <string name="number_servings">Number of servings: %d</string>
+    <string name="title_recipeitem_list">Items</string>
+    <string name="title_recipeitem_detail">RecipeItem Detail</string>
 </resources>
