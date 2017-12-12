@@ -6,8 +6,6 @@
     android:name="br.com.victorpettengill.bakingapp.RecipeItemListFragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_marginLeft="16dp"
-    android:layout_marginRight="16dp"
     app:layoutManager="LinearLayoutManager"
-    tools:context="br.com.victorpettengill.bakingapp.RecipeItemListActivity"
+    tools:context="br.com.victorpettengill.bakingapp.ui.RecipeItemListActivity"
     tools:listitem="@layout/recipeitem_list_content" />

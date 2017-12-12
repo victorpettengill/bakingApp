@@ -1,19 +1,18 @@
-package br.com.victorpettengill.bakingapp;
+package br.com.victorpettengill.bakingapp.ui;
 
+import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 
 import java.util.List;
 
+import br.com.victorpettengill.bakingapp.R;
 import br.com.victorpettengill.bakingapp.adapters.RecipeAdapter;
 import br.com.victorpettengill.bakingapp.beans.Recipe;
 import br.com.victorpettengill.bakingapp.dao.RecipeDao;
@@ -78,6 +77,10 @@ public class RecipeListActivity extends AppCompatActivity {
                 recycler.setAdapter(new RecipeAdapter(list, new RecipeAdapter.RecipeClickListener() {
                     @Override
                     public void onRecipeClicked(Recipe recipe) {
+
+                        Intent i = new Intent(RecipeListActivity.this, RecipeItemListActivity.class);
+                        i.putExtra("recipe", recipe);
+                        startActivity(i);
 
                     }
                 }));

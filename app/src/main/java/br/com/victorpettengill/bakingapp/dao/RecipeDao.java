@@ -42,7 +42,6 @@ public class RecipeDao {
 
                 helper.onSuccess(response.body());
 
-
             }
 
             @Override

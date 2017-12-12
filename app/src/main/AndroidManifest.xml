@@ -12,7 +12,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".RecipeListActivity"
+            android:name=".ui.RecipeListActivity"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
@@ -21,18 +21,29 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <activity
-            android:name=".RecipeItemListActivity"
+            android:name=".ui.RecipeItemListActivity"
             android:label="@string/title_recipeitem_list"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:launchMode="singleInstance"
+            android:parentActivityName=".ui.RecipeListActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="br.com.victorpettengill.bakingapp.ui.RecipeListActivity" />
+
+        </activity>
+
         <activity
-            android:name=".RecipeItemDetailActivity"
+            android:name=".ui.RecipeItemDetailActivity"
             android:label="@string/title_recipeitem_detail"
-            android:parentActivityName=".RecipeItemListActivity"
+            android:parentActivityName=".ui.RecipeItemListActivity"
+            android:launchMode="singleInstance"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="br.com.victorpettengill.bakingapp.RecipeItemListActivity" />
+                android:value="br.com.victorpettengill.bakingapp.ui.RecipeItemListActivity" />
         </activity>
     </application>
 
