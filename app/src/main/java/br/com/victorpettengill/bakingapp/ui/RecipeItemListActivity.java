@@ -60,6 +60,20 @@ public class RecipeItemListActivity extends AppCompatActivity {
 
     private void setupRecyclerView(RecyclerView recyclerView) {
 
+        if(mTwoPane) {
+
+            ArrayList<Ingredient> ingredients = recipe.getIngredients();
+
+            Bundle arguments = new Bundle();
+            arguments.putParcelableArrayList(IngrendientDetailFragment.INGREDIENT_ARG, ingredients);
+            IngrendientDetailFragment fragment = new IngrendientDetailFragment();
+            fragment.setArguments(arguments);
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.recipeitem_detail_container, fragment)
+                    .commit();
+
+        }
+
         recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
         recyclerView.setAdapter(new RecipeDetailAdapter(recipe, new RecipeDetailAdapter.RecipeDetailListener() {
 
@@ -92,7 +106,7 @@ public class RecipeItemListActivity extends AppCompatActivity {
                 if (mTwoPane) {
 
                     getSupportFragmentManager().beginTransaction()
-                            .add(R.id.recipeitem_detail_container,
+                            .replace(R.id.recipeitem_detail_container,
                                     StepDetailFragment.newInstance(
                                             recipeStep))
                             .commit();
@@ -101,6 +115,7 @@ public class RecipeItemListActivity extends AppCompatActivity {
 
                     Intent intent = new Intent(RecipeItemListActivity.this, RecipeItemDetailActivity.class);
                     intent.putExtra(StepDetailFragment.STEP_ARG, recipeStep);
+                    intent.putExtra(StepDetailFragment.STEP_POSITION_ARG, recipe.getSteps().indexOf(recipeStep));
 
                     startActivity(intent);
                 }

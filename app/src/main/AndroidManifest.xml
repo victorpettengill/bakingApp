@@ -40,11 +40,19 @@
             android:label="@string/title_recipeitem_detail"
             android:parentActivityName=".ui.RecipeItemListActivity"
             android:launchMode="singleInstance"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/AppTheme.NoActionBar"
+            android:configChanges="screenSize|orientation">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="br.com.victorpettengill.bakingapp.ui.RecipeItemListActivity" />
         </activity>
+
+        <receiver android:name="android.support.v4.media.session.MediaButtonReceiver" >
+            <intent-filter>
+                <action android:name="android.intent.action.MEDIA_BUTTON" />
+            </intent-filter>
+        </receiver>
+
     </application>
 
 </manifest>
