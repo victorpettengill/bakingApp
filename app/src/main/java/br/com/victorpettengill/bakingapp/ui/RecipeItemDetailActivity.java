@@ -12,11 +12,15 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Button;
 
 import br.com.victorpettengill.bakingapp.R;
+import br.com.victorpettengill.bakingapp.beans.Recipe;
 import br.com.victorpettengill.bakingapp.beans.Step;
 import br.com.victorpettengill.bakingapp.ui.fragments.IngrendientDetailFragment;
 import br.com.victorpettengill.bakingapp.ui.fragments.StepDetailFragment;
+import butterknife.BindView;
+import butterknife.ButterKnife;
 
 /**
  * An activity representing a single RecipeItem detail screen. This
@@ -26,17 +30,21 @@ import br.com.victorpettengill.bakingapp.ui.fragments.StepDetailFragment;
  */
 public class RecipeItemDetailActivity extends AppCompatActivity implements StepDetailFragment.FragmentStepComm{
 
+    @BindView(R.id.next) Button next;
+    @BindView(R.id.previous) Button previous;
+
+    private int position = 0;
+    private Recipe recipe;
+    public static final String RECIPE_ARG = "recipe";
+    public static final String STEP_POSITION = "position";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            requestWindowFeature(Window.FEATURE_NO_TITLE);
-            getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                    WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        }
-
         setContentView(R.layout.activity_recipeitem_detail);
+
+        ButterKnife.bind(this);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -53,30 +61,82 @@ public class RecipeItemDetailActivity extends AppCompatActivity implements StepD
 
             Bundle arguments = new Bundle();
 
-            if(getIntent().hasExtra(IngrendientDetailFragment.INGREDIENT_ARG)) {
+            if(getIntent().hasExtra(RECIPE_ARG)) {
 
-                arguments.putParcelableArrayList(IngrendientDetailFragment.INGREDIENT_ARG,
-                        getIntent().getParcelableArrayListExtra(IngrendientDetailFragment.INGREDIENT_ARG));
+                next.setText(R.string.next_step);
 
-                IngrendientDetailFragment fragment = new IngrendientDetailFragment();
-                fragment.setArguments(arguments);
-                getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.recipeitem_detail_container, fragment)
-                        .commit();
+                position = getIntent().getIntExtra(STEP_POSITION, 0);
+                recipe = getIntent().getParcelableExtra(RECIPE_ARG);
 
-                getSupportActionBar().setTitle(R.string.ingredients);
+                recipe.setCurrentRecipe(RecipeItemDetailActivity.this);
 
-            } else if(getIntent().hasExtra(StepDetailFragment.STEP_ARG)) {
+                Log.i("position", ""+position);
 
-                Step recipeStep = (Step) getIntent().getParcelableExtra(StepDetailFragment.STEP_ARG);
+                if(position == 0) {
 
-                getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.recipeitem_detail_container,
-                                StepDetailFragment.newInstance(
-                                        recipeStep))
-                        .commit();
+                    previous.setVisibility(View.GONE);
 
-                getSupportActionBar().setTitle(recipeStep.getShortDescription());
+                    arguments.putParcelableArrayList(IngrendientDetailFragment.INGREDIENT_ARG,
+                            recipe.getIngredients());
+
+                    IngrendientDetailFragment fragment = new IngrendientDetailFragment();
+                    fragment.setArguments(arguments);
+                    getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.recipeitem_detail_container, fragment)
+                            .commit();
+
+                    getSupportActionBar().setTitle(R.string.ingredients);
+
+                } else {
+
+                    previous.setVisibility(View.VISIBLE);
+
+                    if(position == recipe.getSteps().size()) {
+                        next.setVisibility(View.GONE);
+                    }
+
+                    Step recipeStep = recipe.getSteps().get(position-1);
+
+                    getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.recipeitem_detail_container,
+                                    StepDetailFragment.newInstance(
+                                            recipeStep))
+                            .commit();
+
+                    getSupportActionBar().setTitle(recipeStep.getShortDescription());
+
+                }
+
+                previous.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+
+                        finish();
+
+                        Intent intent = new Intent(RecipeItemDetailActivity.this, RecipeItemDetailActivity.class);
+                        intent.putExtra(RecipeItemDetailActivity.RECIPE_ARG, recipe);
+                        intent.putExtra(RecipeItemDetailActivity.STEP_POSITION, position-1);
+
+                        startActivity(intent);
+
+
+                    }
+                });
+
+                next.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+
+                        finish();
+
+                        Intent intent = new Intent(RecipeItemDetailActivity.this, RecipeItemDetailActivity.class);
+                        intent.putExtra(RecipeItemDetailActivity.RECIPE_ARG, recipe);
+                        intent.putExtra(RecipeItemDetailActivity.STEP_POSITION, position+1);
+
+                        startActivity(intent);
+
+                    }
+                });
 
             }
 
@@ -87,30 +147,16 @@ public class RecipeItemDetailActivity extends AppCompatActivity implements StepD
         }
     }
 
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-
-
-    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        if (id == android.R.id.home) {
+        finish();
 
-            navigateUpTo(new Intent(this, RecipeItemListActivity.class));
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
+        return true;
     }
 
     @Override
     public void onLandscape() {
-
-//        requestWindowFeature(Window.FEATURE_NO_TITLE);
-//        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-//                WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
         getSupportActionBar().hide();
 
@@ -123,10 +169,6 @@ public class RecipeItemDetailActivity extends AppCompatActivity implements StepD
 
     @Override
     public void onPortrait() {
-
-//        requestWindowFeature(Window.FEATURE_NO_TITLE);
-//        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-//                WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
         getSupportActionBar().show();
 

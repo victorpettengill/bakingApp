@@ -14,6 +14,7 @@ import android.support.v4.media.session.PlaybackStateCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -50,12 +51,12 @@ public class StepDetailFragment extends Fragment implements ExoPlayer.EventListe
     @BindView(R.id.playerView) SimpleExoPlayerView mPlayerView;
     @BindView(R.id.scrollView) ScrollView scrollView;
 
+
     private ConstraintSet originalConstraint;
     private LinearLayout.LayoutParams originalParams;
 
     private static final String TAG = StepDetailFragment.class.getSimpleName();
     public static final String STEP_ARG = "step";
-    public static final String STEP_POSITION_ARG = "position";
     private Step recipeStep;
 
     private SimpleExoPlayer mExoPlayer;
@@ -168,8 +169,9 @@ public class StepDetailFragment extends Fragment implements ExoPlayer.EventListe
             // Prepare the MediaSource.
             String userAgent = Util.getUserAgent(getContext(), "BakingApp");
             MediaSource mediaSource = new ExtractorMediaSource(mediaUri,
-                    new DefaultHttpDataSourceFactory("ua"),
+                    new DefaultHttpDataSourceFactory(userAgent),
                     new DefaultExtractorsFactory(), null, null);
+
             mExoPlayer.prepare(mediaSource);
             mExoPlayer.setPlayWhenReady(true);
         }

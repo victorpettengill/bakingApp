@@ -21,38 +21,34 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".ui.RecipeItemListActivity"
             android:label="@string/title_recipeitem_list"
-            android:launchMode="singleInstance"
-            android:parentActivityName=".ui.RecipeListActivity"
-            android:theme="@style/AppTheme.NoActionBar">
-
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="br.com.victorpettengill.bakingapp.ui.RecipeListActivity" />
-
-        </activity>
-
+            android:launchMode="singleTop"
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".ui.RecipeItemDetailActivity"
+            android:configChanges="screenSize|orientation"
             android:label="@string/title_recipeitem_detail"
-            android:parentActivityName=".ui.RecipeItemListActivity"
-            android:launchMode="singleInstance"
-            android:theme="@style/AppTheme.NoActionBar"
-            android:configChanges="screenSize|orientation">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="br.com.victorpettengill.bakingapp.ui.RecipeItemListActivity" />
-        </activity>
+            android:launchMode="singleTask"
+            android:theme="@style/AppTheme.NoActionBar" />
 
-        <receiver android:name="android.support.v4.media.session.MediaButtonReceiver" >
+        <receiver android:name="android.support.v4.media.session.MediaButtonReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.MEDIA_BUTTON" />
             </intent-filter>
         </receiver>
+        <receiver android:name=".ui.widget.IngredientsWidget">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
 
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/ingredients_widget_info" />
+        </receiver>
+
+        <service android:name=".ui.widget.IngredientsWidgetService" />
     </application>
 
 </manifest>

@@ -1,5 +1,10 @@
 package br.com.victorpettengill.bakingapp.beans;
 
+import android.appwidget.AppWidgetManager;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -7,6 +12,9 @@ import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import br.com.victorpettengill.bakingapp.R;
+import br.com.victorpettengill.bakingapp.ui.widget.IngredientsWidget;
 
 /**
  * Created by appimagetech on 27/11/17.
@@ -21,7 +29,7 @@ public class Recipe implements Parcelable{
     private long servings;
     private String image;
 
-    protected Recipe(Parcel in) {
+    private Recipe(Parcel in) {
 
         Gson gson = new Gson();
 
@@ -108,4 +116,46 @@ public class Recipe implements Parcelable{
         parcel.writeString(gson.toJson(this));
 
     }
+
+    public void setCurrentRecipe(Context context) {
+
+        Gson gson = new Gson();
+
+        SharedPreferences sharedPreferences = context.getSharedPreferences("recipe", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString("recipe", gson.toJson(Recipe.this));
+
+        editor.apply();
+
+        AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
+
+        int[] appWidgetIds = appWidgetManager.getAppWidgetIds(new ComponentName(context, IngredientsWidget.class));
+        appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.appwidget_list);
+
+        IngredientsWidget.updateWidget(context, appWidgetManager, appWidgetIds);
+
+//        Intent i = new Intent("USERUPDATED");
+//        context.sendBroadcast(i);
+
+    }
+
+    public static Recipe getCurrentRecipe(Context context) {
+
+        Recipe recipe = null;
+
+        SharedPreferences sharedPreferences = context.getSharedPreferences("recipe", Context.MODE_PRIVATE);
+
+        if(sharedPreferences.getString("recipe", null) != null){
+            Gson gson = new Gson();
+            try {
+                recipe = gson.fromJson(sharedPreferences.getString("recipe", null), Recipe.class);
+            } catch (Exception e) {
+
+            }
+        }
+
+        return recipe;
+
+    }
+
 }

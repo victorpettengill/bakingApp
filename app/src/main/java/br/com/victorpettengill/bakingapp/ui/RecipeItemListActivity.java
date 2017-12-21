@@ -6,6 +6,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
+import android.view.MenuItem;
 
 import java.util.ArrayList;
 
@@ -48,10 +50,7 @@ public class RecipeItemListActivity extends AppCompatActivity {
         recipe = getIntent().getExtras().getParcelable("recipe");
 
         if (findViewById(R.id.recipeitem_detail_container) != null) {
-            // The detail container view will be present only in the
-            // large-screen layouts (res/values-w900dp).
-            // If this view is present, then the
-            // activity should be in two-pane mode.
+
             mTwoPane = true;
         }
 
@@ -93,9 +92,10 @@ public class RecipeItemListActivity extends AppCompatActivity {
                 } else {
 
                     Intent intent = new Intent(RecipeItemListActivity.this, RecipeItemDetailActivity.class);
-                    intent.putExtra(IngrendientDetailFragment.INGREDIENT_ARG, ingredients);
-
+                    intent.putExtra(RecipeItemDetailActivity.RECIPE_ARG, recipe);
+                    intent.putExtra(RecipeItemDetailActivity.STEP_POSITION, 0);
                     startActivity(intent);
+
                 }
 
             }
@@ -114,32 +114,31 @@ public class RecipeItemListActivity extends AppCompatActivity {
                 } else {
 
                     Intent intent = new Intent(RecipeItemListActivity.this, RecipeItemDetailActivity.class);
-                    intent.putExtra(StepDetailFragment.STEP_ARG, recipeStep);
-                    intent.putExtra(StepDetailFragment.STEP_POSITION_ARG, recipe.getSteps().indexOf(recipeStep));
-
+                    intent.putExtra(RecipeItemDetailActivity.RECIPE_ARG, recipe);
+                    intent.putExtra(RecipeItemDetailActivity.STEP_POSITION, recipe.getSteps().indexOf(recipeStep)+1);
                     startActivity(intent);
+
                 }
 
             }
         }));
 
-//        DummyContent.DummyItem item = (DummyContent.DummyItem) view.getTag();
-//        if (mTwoPane) {
-//            Bundle arguments = new Bundle();
-//            arguments.putString(IngrendientDetailFragment.INGREDIENT_ARG, item.id);
-//            IngrendientDetailFragment fragment = new IngrendientDetailFragment();
-//            fragment.setArguments(arguments);
-//            mParentActivity.getSupportFragmentManager().beginTransaction()
-//                    .replace(R.id.recipeitem_detail_container, fragment)
-//                    .commit();
-//        } else {
-//            Context context = view.getContext();
-//            Intent intent = new Intent(context, RecipeItemDetailActivity.class);
-//            intent.putExtra(IngrendientDetailFragment.INGREDIENT_ARG, item.id);
-//
-//            context.startActivity(intent);
-//        }
 
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        finish();
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        Log.i("finished", RecipeItemListActivity.class.getName());
+
+    }
 }
