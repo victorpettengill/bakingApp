@@ -2,10 +2,9 @@ package br.com.victorpettengill.bakingapp.ui.widget;
 
 import android.appwidget.AppWidgetManager;
 import android.content.Context;
+import android.util.Log;
 import android.widget.RemoteViews;
 import android.widget.RemoteViewsService;
-
-import java.util.ArrayList;
 
 import br.com.victorpettengill.bakingapp.R;
 import br.com.victorpettengill.bakingapp.beans.Ingredient;
@@ -20,9 +19,13 @@ public class IngredientWidgetProvider implements RemoteViewsService.RemoteViewsF
     private Recipe recipe;
     private Context context;
 
-    public IngredientWidgetProvider(Context context, Recipe recipe) {
-        this.recipe = recipe;
+    public IngredientWidgetProvider(Context context) {
         this.context = context;
+
+        recipe = Recipe.getCurrentRecipe(context);
+
+        Log.i("Provider", "onCreate");
+
     }
 
     @Override
@@ -42,6 +45,9 @@ public class IngredientWidgetProvider implements RemoteViewsService.RemoteViewsF
 
     @Override
     public int getCount() {
+
+        Log.i("Provider", "count: "+recipe.getIngredients().size());
+
         return recipe.getIngredients().size();
     }
 
@@ -50,7 +56,18 @@ public class IngredientWidgetProvider implements RemoteViewsService.RemoteViewsF
 
         final RemoteViews remoteView = new RemoteViews(
                 context.getPackageName(), R.layout.ingredient_widget_item);
-        remoteView.setTextViewText(R.id.ingredient, String.format("• %s", recipe.getIngredients().get(i).getIngredient()));
+
+        Ingredient ingredient = recipe.getIngredients().get(i);
+
+        StringBuilder builder = new StringBuilder();
+        builder.append("• ");
+        builder.append(ingredient.getQuantity());
+        builder.append(" ");
+        builder.append(ingredient.getMeasure());
+        builder.append(" of ");
+        builder.append(ingredient.getIngredient());
+
+        remoteView.setTextViewText(R.id.ingredient, builder.toString());
 
         return remoteView;
     }
@@ -72,6 +89,6 @@ public class IngredientWidgetProvider implements RemoteViewsService.RemoteViewsF
 
     @Override
     public boolean hasStableIds() {
-        return false;
+        return true;
     }
 }

@@ -7,6 +7,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
 import android.view.MenuItem;
 
 import java.util.ArrayList;
@@ -127,9 +128,25 @@ public class RecipeItemListActivity extends AppCompatActivity {
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+
+        getMenuInflater().inflate(R.menu.menu_recipe_view, menu);
+
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
-        finish();
+        if (item.getItemId() == R.id.save_ingredients) {
+
+            recipe.setCurrentRecipe(this);
+
+        } else {
+
+            finish();
+
+        }
 
         return super.onOptionsItemSelected(item);
     }
@@ -141,4 +158,5 @@ public class RecipeItemListActivity extends AppCompatActivity {
         Log.i("finished", RecipeItemListActivity.class.getName());
 
     }
+
 }

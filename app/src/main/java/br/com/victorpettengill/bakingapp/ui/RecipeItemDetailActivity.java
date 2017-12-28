@@ -68,8 +68,6 @@ public class RecipeItemDetailActivity extends AppCompatActivity implements StepD
                 position = getIntent().getIntExtra(STEP_POSITION, 0);
                 recipe = getIntent().getParcelableExtra(RECIPE_ARG);
 
-                recipe.setCurrentRecipe(RecipeItemDetailActivity.this);
-
                 Log.i("position", ""+position);
 
                 if(position == 0) {

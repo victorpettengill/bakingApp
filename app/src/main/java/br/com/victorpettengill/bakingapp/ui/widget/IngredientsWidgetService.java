@@ -5,8 +5,6 @@ import android.content.Intent;
 import android.util.Log;
 import android.widget.RemoteViewsService;
 
-import br.com.victorpettengill.bakingapp.beans.Recipe;
-
 /**
  * Created by appimagetech on 21/12/17.
  */
@@ -24,9 +22,8 @@ public class IngredientsWidgetService extends RemoteViewsService {
                 AppWidgetManager.EXTRA_APPWIDGET_ID,
                 AppWidgetManager.INVALID_APPWIDGET_ID);
 
-        Recipe recipe = intent.getParcelableExtra(RECIPE_ARG);
-
-        return (new IngredientWidgetProvider(this.getApplicationContext(), recipe));
+        return (new IngredientWidgetProvider(this.getApplicationContext()));
     }
+
 
 }
