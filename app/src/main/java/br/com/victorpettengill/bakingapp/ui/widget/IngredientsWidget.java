@@ -28,15 +28,19 @@ public class IngredientsWidget extends AppWidgetProvider {
 
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.ingredients_widget);
 
-        views.setTextViewText(R.id.title_widget, recipe.getName()+" - "+context.getString(R.string.ingredients));
+        if(recipe != null) {
 
-        Intent intent = new Intent(context, IngredientsWidgetService.class);
+            views.setTextViewText(R.id.title_widget, recipe.getName() + " - " + context.getString(R.string.ingredients));
+
+            Intent intent = new Intent(context, IngredientsWidgetService.class);
 //        intent.putExtra(IngredientsWidgetService.RECIPE_ARG, recipe);
-        intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
-        intent.setData(Uri.parse(intent.toUri(Intent.URI_INTENT_SCHEME)));
-        intent.putExtra("random", new Date().getTime());
+            intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
+            intent.setData(Uri.parse(intent.toUri(Intent.URI_INTENT_SCHEME)));
+            intent.putExtra("random", new Date().getTime());
 
-        views.setRemoteAdapter(R.id.appwidget_list, intent);
+            views.setRemoteAdapter(R.id.appwidget_list, intent);
+
+        }
 
         appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetId, R.id.appwidget_list);
         appWidgetManager.updateAppWidget(appWidgetId, views);

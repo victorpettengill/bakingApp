@@ -7,6 +7,8 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.squareup.picasso.Picasso;
+
 import java.util.List;
 
 import br.com.victorpettengill.bakingapp.R;
@@ -66,8 +68,10 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
             recipeName.setText(recipe.getName());
             servings.setText(String.format(itemView.getContext().getString(R.string.number_servings), recipe.getServings()));
 
-            if(recipe.getImage() != null) {
-
+            if(recipe.getImage() != null && !recipe.getImage().equals("")) {
+                Picasso.with(itemView.getContext()).load(recipe.getImage()).placeholder(R.drawable.ic_placeholder).fit().centerCrop().into(image);
+            } else {
+                image.setImageResource(R.drawable.ic_placeholder);
             }
 
             itemView.setOnClickListener(new View.OnClickListener() {

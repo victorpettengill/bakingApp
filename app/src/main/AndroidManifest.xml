@@ -28,7 +28,6 @@
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".ui.RecipeItemDetailActivity"
-            android:configChanges="screenSize|orientation"
             android:label="@string/title_recipeitem_detail"
             android:launchMode="singleTask"
             android:theme="@style/AppTheme.NoActionBar" />
