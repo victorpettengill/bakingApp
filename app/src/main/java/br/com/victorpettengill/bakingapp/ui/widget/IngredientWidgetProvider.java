@@ -28,6 +28,7 @@ public class IngredientWidgetProvider implements RemoteViewsService.RemoteViewsF
 
     }
 
+
     @Override
     public void onCreate() {
 

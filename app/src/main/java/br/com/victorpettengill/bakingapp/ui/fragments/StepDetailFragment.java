@@ -16,6 +16,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -52,7 +53,7 @@ public class StepDetailFragment extends Fragment implements ExoPlayer.EventListe
     @BindView(R.id.instructions) TextView instructions;
     @BindView(R.id.playerView) SimpleExoPlayerView mPlayerView;
     @BindView(R.id.scrollView) ScrollView scrollView;
-
+    @BindView(R.id.image) ImageView image;
 
     private LinearLayout.LayoutParams originalParams;
 
@@ -89,14 +90,17 @@ public class StepDetailFragment extends Fragment implements ExoPlayer.EventListe
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        Log.i("Fragment", "OnCreate");
+        if(getArguments() != null) {
 
-        if (getArguments() != null) {
             recipeStep = getArguments().getParcelable(STEP_ARG);
 
-            currentUri = Uri.parse(recipeStep.getVideoURL());
         }
 
+
+        if(savedInstanceState != null) {
+            recipeStep = savedInstanceState.getParcelable(STEP_ARG);
+            currentUri = Uri.parse(savedInstanceState.getString(URI_ARG));
+        }
 
     }
 
@@ -125,6 +129,20 @@ public class StepDetailFragment extends Fragment implements ExoPlayer.EventListe
         mPlayerView.setDefaultArtwork(BitmapFactory.decodeResource
                 (getResources(), R.drawable.ic_placeholder));
 
+        if(recipeStep.getThumbnailURL() != null && !recipeStep.getThumbnailURL().equals("")) {
+            image.setVisibility(View.VISIBLE);
+        }
+
+        if(recipeStep.getVideoURL() != null && !recipeStep.getVideoURL().equals("")) {
+            mPlayerView.setVisibility(View.VISIBLE);
+            currentUri = Uri.parse(recipeStep.getVideoURL());
+
+            ExoPlayerVideoHandler.getInstance()
+                    .prepareExoPlayerForUri(getContext(),
+                            currentUri, mPlayerView);
+            ExoPlayerVideoHandler.getInstance().goToForeground();
+        }
+
 
         return rootView;
     }
@@ -146,25 +164,25 @@ public class StepDetailFragment extends Fragment implements ExoPlayer.EventListe
         }
 
     }
-
-    @Override
-    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
-        super.onViewStateRestored(savedInstanceState);
-
-        if(savedInstanceState != null) {
-
-            recipeStep = savedInstanceState.getParcelable(STEP_ARG);
-            currentUri = Uri.parse(savedInstanceState.getString(URI_ARG));
-
-        }
-
-    }
+//
+//    @Override
+//    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+//        super.onViewStateRestored(savedInstanceState);
+//
+//        if(savedInstanceState != null) {
+//
+//            recipeStep = savedInstanceState.getParcelable(STEP_ARG);
+//            currentUri = Uri.parse(savedInstanceState.getString(URI_ARG));
+//
+//        }
+//
+//    }
 
     @Override
     public void onResume() {
         super.onResume();
 
-        if (currentUri != null && mPlayerView != null) {
+        if (currentUri != null) {
 
             ExoPlayerVideoHandler.getInstance()
                     .prepareExoPlayerForUri(getContext(),
@@ -194,41 +212,6 @@ public class StepDetailFragment extends Fragment implements ExoPlayer.EventListe
         if(!handlingRotation) {
             ExoPlayerVideoHandler.getInstance().releaseVideoPlayer();
         }
-
-    }
-
-    private void initFullscreenDialog() {
-
-        mFullScreenDialog = new Dialog(getContext(), android.R.style.Theme_Black_NoTitleBar_Fullscreen) {
-            public void onBackPressed() {
-                if (mExoPlayerFullscreen)
-                    closeFullscreenDialog();
-                super.onBackPressed();
-            }
-        };
-    }
-
-    private void openFullscreenDialog() {
-
-        if(originalParams == null) {
-            originalParams = (LinearLayout.LayoutParams) mPlayerView.getLayoutParams();
-        }
-
-        containerPLayer.removeView(mPlayerView);
-        mFullScreenDialog.addContentView(mPlayerView, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-        mExoPlayerFullscreen = true;
-        mFullScreenDialog.show();
-    }
-
-    private void closeFullscreenDialog() {
-
-        ((ViewGroup) mPlayerView.getParent()).removeView(mPlayerView);
-
-        containerPLayer.addView(mPlayerView, 0);
-
-        mPlayerView.setLayoutParams(originalParams);
-        mExoPlayerFullscreen = false;
-        mFullScreenDialog.dismiss();
 
     }
 
@@ -286,25 +269,6 @@ public class StepDetailFragment extends Fragment implements ExoPlayer.EventListe
         }
     }
 
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-
-        if(newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-
-            if(mFullScreenDialog  == null) {
-                initFullscreenDialog();
-            }
-
-            openFullscreenDialog();
-
-        } else {
-
-            closeFullscreenDialog();
-
-        }
-
-    }
 
     public interface FragmentStepComm {
 
