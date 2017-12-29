@@ -17,6 +17,7 @@ import android.widget.Button;
 import br.com.victorpettengill.bakingapp.R;
 import br.com.victorpettengill.bakingapp.beans.Recipe;
 import br.com.victorpettengill.bakingapp.beans.Step;
+import br.com.victorpettengill.bakingapp.helper.ExoPlayerVideoHandler;
 import br.com.victorpettengill.bakingapp.ui.fragments.IngrendientDetailFragment;
 import br.com.victorpettengill.bakingapp.ui.fragments.StepDetailFragment;
 import butterknife.BindView;
@@ -80,7 +81,7 @@ public class RecipeItemDetailActivity extends AppCompatActivity implements StepD
                     IngrendientDetailFragment fragment = new IngrendientDetailFragment();
                     fragment.setArguments(arguments);
                     getSupportFragmentManager().beginTransaction()
-                            .replace(R.id.recipeitem_detail_container, fragment)
+                            .replace(R.id.recipeitem_detail_container, fragment, "ingredient")
                             .commit();
 
                     getSupportActionBar().setTitle(R.string.ingredients);
@@ -98,7 +99,7 @@ public class RecipeItemDetailActivity extends AppCompatActivity implements StepD
                     getSupportFragmentManager().beginTransaction()
                             .replace(R.id.recipeitem_detail_container,
                                     StepDetailFragment.newInstance(
-                                            recipeStep))
+                                            recipeStep), "steps")
                             .commit();
 
                     getSupportActionBar().setTitle(recipeStep.getShortDescription());
@@ -148,6 +149,7 @@ public class RecipeItemDetailActivity extends AppCompatActivity implements StepD
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+
         finish();
 
         return true;

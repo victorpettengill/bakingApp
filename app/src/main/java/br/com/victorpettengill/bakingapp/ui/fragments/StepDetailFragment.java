@@ -11,6 +11,7 @@ import android.support.constraint.ConstraintSet;
 import android.support.v4.app.Fragment;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -57,6 +58,7 @@ public class StepDetailFragment extends Fragment implements ExoPlayer.EventListe
 
     private static final String TAG = StepDetailFragment.class.getSimpleName();
     public static final String STEP_ARG = "step";
+    private final String URI_ARG = "uri";
     private Step recipeStep;
 
     private SimpleExoPlayer mExoPlayer;
@@ -65,6 +67,8 @@ public class StepDetailFragment extends Fragment implements ExoPlayer.EventListe
 
     private Dialog mFullScreenDialog;
     private boolean mExoPlayerFullscreen;
+
+    private boolean handlingRotation = false;
 
     private Uri currentUri;
 
@@ -85,12 +89,26 @@ public class StepDetailFragment extends Fragment implements ExoPlayer.EventListe
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        Log.i("Fragment", "OnCreate");
+
         if (getArguments() != null) {
             recipeStep = getArguments().getParcelable(STEP_ARG);
+
+            currentUri = Uri.parse(recipeStep.getVideoURL());
         }
+
+
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        handlingRotation = false;
 
         if(savedInstanceState != null) {
             recipeStep = savedInstanceState.getParcelable(STEP_ARG);
+            currentUri = Uri.parse(savedInstanceState.getString(URI_ARG));
         }
 
     }
@@ -115,97 +133,46 @@ public class StepDetailFragment extends Fragment implements ExoPlayer.EventListe
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
 
+        handlingRotation = true;
+
+        ExoPlayerVideoHandler.getInstance().goToBackground();
+
         if(recipeStep != null) {
             outState.putParcelable(STEP_ARG, recipeStep);
+        }
+
+        if(currentUri != null) {
+            outState.putString(URI_ARG, currentUri.toString());
         }
 
     }
 
     @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
+    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+        super.onViewStateRestored(savedInstanceState);
 
-        initializeMediaSession();
+        if(savedInstanceState != null) {
 
-        // Initialize the player.
-        initializePlayer(Uri.parse(recipeStep.getVideoURL()));
-
-    }
-
-    private void initializeMediaSession() {
-
-        if(mMediaSession == null) {
-
-            // Create a MediaSessionCompat.
-            mMediaSession = new MediaSessionCompat(getActivity(), TAG);
-
-            // Enable callbacks from MediaButtons and TransportControls.
-            mMediaSession.setFlags(
-                    MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS |
-                            MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS);
-
-            // Do not let MediaButtons restart the player when the app is not visible.
-            mMediaSession.setMediaButtonReceiver(null);
-
-            // Set an initial PlaybackState with ACTION_PLAY, so media buttons can start the player.
-            mStateBuilder = new PlaybackStateCompat.Builder()
-                    .setActions(
-                            PlaybackStateCompat.ACTION_PLAY |
-                                    PlaybackStateCompat.ACTION_PAUSE |
-                                    PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS |
-                                    PlaybackStateCompat.ACTION_PLAY_PAUSE);
-
-            mMediaSession.setPlaybackState(mStateBuilder.build());
-
-            // MySessionCallback has methods that handle callbacks from a media controller.
-            mMediaSession.setCallback(new MediaSessionCallBack());
-
-            // Start the Media Session since the activity is active.
-            mMediaSession.setActive(true);
+            recipeStep = savedInstanceState.getParcelable(STEP_ARG);
+            currentUri = Uri.parse(savedInstanceState.getString(URI_ARG));
 
         }
-
-    }
-
-    private void initializePlayer(Uri mediaUri) {
-
-        currentUri = mediaUri;
-
-        if (mExoPlayer == null) {
-
-            // Create an instance of the ExoPlayer.
-            TrackSelector trackSelector = new DefaultTrackSelector();
-            LoadControl loadControl = new DefaultLoadControl();
-            mExoPlayer = ExoPlayerFactory.newSimpleInstance(getContext(), trackSelector, loadControl);
-
-            // Set the ExoPlayer.EventListener to this activity.
-            mExoPlayer.addListener(this);
-
-            // Prepare the MediaSource.
-            String userAgent = Util.getUserAgent(getContext(), "BakingApp");
-            MediaSource mediaSource = new ExtractorMediaSource(mediaUri,
-                    new DefaultHttpDataSourceFactory(userAgent),
-                    new DefaultExtractorsFactory(), null, null);
-
-            mExoPlayer.prepare(mediaSource);
-            mExoPlayer.setPlayWhenReady(true);
-        }
-
-        mPlayerView.setPlayer(mExoPlayer);
-        mPlayerView.setResizeMode(AspectRatioFrameLayout.RESIZE_MODE_FIT);
 
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        if (Util.SDK_INT <= 23 || mExoPlayer == null) {
 
-            if(currentUri != null) {
-                initializePlayer(currentUri);
-            }
+        if (currentUri != null && mPlayerView != null) {
+
+            ExoPlayerVideoHandler.getInstance()
+                    .prepareExoPlayerForUri(getContext(),
+                            currentUri, mPlayerView);
+            ExoPlayerVideoHandler.getInstance().goToForeground();
 
         }
+
     }
 
     @Override
@@ -224,7 +191,9 @@ public class StepDetailFragment extends Fragment implements ExoPlayer.EventListe
     public void onDestroyView() {
         super.onDestroyView();
 
-        ExoPlayerVideoHandler.getInstance().releaseVideoPlayer();
+        if(!handlingRotation) {
+            ExoPlayerVideoHandler.getInstance().releaseVideoPlayer();
+        }
 
     }
 
