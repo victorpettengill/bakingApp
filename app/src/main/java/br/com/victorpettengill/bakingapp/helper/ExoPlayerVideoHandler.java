@@ -36,6 +36,8 @@ public class ExoPlayerVideoHandler
     private SimpleExoPlayer player;
     private Uri playerUri;
     private boolean isPlayerPlaying;
+    private long position;
+    private MediaSource mediaSource;
 
     private ExoPlayerVideoHandler(){}
 
@@ -43,17 +45,23 @@ public class ExoPlayerVideoHandler
                                        SimpleExoPlayerView exoPlayerView){
 
         if(context != null && uri != null && exoPlayerView != null){
-            if(!uri.equals(playerUri) || player == null){
+
+            if(!uri.equals(playerUri)) {
+                String userAgent = Util.getUserAgent(context, "BakingApp");
+                mediaSource = new ExtractorMediaSource(uri,
+                        new DefaultHttpDataSourceFactory(userAgent),
+                        new DefaultExtractorsFactory(), null, null);
+
+            }
+
+            if(player == null){
 
                 TrackSelector trackSelector = new DefaultTrackSelector();
                 LoadControl loadControl = new DefaultLoadControl();
                 player = ExoPlayerFactory.newSimpleInstance(context, trackSelector, loadControl);
 
-                String userAgent = Util.getUserAgent(context, "BakingApp");
-                MediaSource mediaSource = new ExtractorMediaSource(uri,
-                        new DefaultHttpDataSourceFactory(userAgent),
-                        new DefaultExtractorsFactory(), null, null);
 
+                player.seekTo(position);
                 player.prepare(mediaSource);
                 player.setPlayWhenReady(true);
 
@@ -63,7 +71,6 @@ public class ExoPlayerVideoHandler
             player.clearVideoSurface();
             player.setVideoSurfaceView(
                     (SurfaceView)exoPlayerView.getVideoSurfaceView());
-            player.seekTo(player.getCurrentPosition() + 1);
             exoPlayerView.setPlayer(player);
         }
     }
@@ -71,6 +78,17 @@ public class ExoPlayerVideoHandler
     public void releaseVideoPlayer(){
         if(player != null)
         {
+            position = 0;
+            player.release();
+        }
+        player = null;
+    }
+
+    public void onPause() {
+        if(player != null)
+        {
+            isPlayerPlaying = player.getPlayWhenReady();
+            position = player.getCurrentPosition();
             player.release();
         }
         player = null;
@@ -79,7 +97,8 @@ public class ExoPlayerVideoHandler
     public void goToBackground(){
         if(player != null){
             isPlayerPlaying = player.getPlayWhenReady();
-            player.setPlayWhenReady(false);
+            position = player.getCurrentPosition();
+            player.setPlayWhenReady(true);
         }
     }
 

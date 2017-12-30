@@ -39,6 +39,7 @@ import com.google.android.exoplayer2.ui.AspectRatioFrameLayout;
 import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
 import com.google.android.exoplayer2.util.Util;
+import com.squareup.picasso.Picasso;
 
 import br.com.victorpettengill.bakingapp.R;
 import br.com.victorpettengill.bakingapp.beans.Step;
@@ -99,7 +100,12 @@ public class StepDetailFragment extends Fragment implements ExoPlayer.EventListe
 
         if(savedInstanceState != null) {
             recipeStep = savedInstanceState.getParcelable(STEP_ARG);
-            currentUri = Uri.parse(savedInstanceState.getString(URI_ARG));
+
+            if(savedInstanceState.containsKey(URI_ARG)) {
+
+                currentUri = Uri.parse(savedInstanceState.getString(URI_ARG));
+
+            }
         }
 
     }
@@ -112,7 +118,13 @@ public class StepDetailFragment extends Fragment implements ExoPlayer.EventListe
 
         if(savedInstanceState != null) {
             recipeStep = savedInstanceState.getParcelable(STEP_ARG);
-            currentUri = Uri.parse(savedInstanceState.getString(URI_ARG));
+
+            if(savedInstanceState.containsKey(URI_ARG)) {
+
+                currentUri = Uri.parse(savedInstanceState.getString(URI_ARG));
+
+            }
+
         }
 
     }
@@ -131,6 +143,7 @@ public class StepDetailFragment extends Fragment implements ExoPlayer.EventListe
 
         if(recipeStep.getThumbnailURL() != null && !recipeStep.getThumbnailURL().equals("")) {
             image.setVisibility(View.VISIBLE);
+            Picasso.with(getContext()).load(recipeStep.getThumbnailURL()).placeholder(R.drawable.ic_placeholder).fit().centerCrop().into(image);
         }
 
         if(recipeStep.getVideoURL() != null && !recipeStep.getVideoURL().equals("")) {
@@ -196,24 +209,15 @@ public class StepDetailFragment extends Fragment implements ExoPlayer.EventListe
     @Override
     public void onPause() {
         super.onPause();
-        ExoPlayerVideoHandler.getInstance().goToBackground();
+        ExoPlayerVideoHandler.getInstance().onPause();
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        ExoPlayerVideoHandler.getInstance().goToBackground();
+        ExoPlayerVideoHandler.getInstance().releaseVideoPlayer();
     }
 
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-
-        if(!handlingRotation) {
-            ExoPlayerVideoHandler.getInstance().releaseVideoPlayer();
-        }
-
-    }
 
     @Override
     public void onTimelineChanged(Timeline timeline, Object manifest) {

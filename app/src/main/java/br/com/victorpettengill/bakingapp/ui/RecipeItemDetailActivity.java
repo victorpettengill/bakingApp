@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.PersistableBundle;
 import android.support.v7.widget.Toolbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.ActionBar;
@@ -29,7 +30,7 @@ import butterknife.ButterKnife;
  * item details are presented side-by-side with a list of items
  * in a {@link RecipeItemListActivity}.
  */
-public class RecipeItemDetailActivity extends AppCompatActivity implements StepDetailFragment.FragmentStepComm{
+public class RecipeItemDetailActivity extends AppCompatActivity {
 
     @BindView(R.id.next) Button next;
     @BindView(R.id.previous) Button previous;
@@ -55,8 +56,12 @@ public class RecipeItemDetailActivity extends AppCompatActivity implements StepD
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
 
+        if(savedInstanceState != null) {
 
-        if (savedInstanceState == null) {
+            position = savedInstanceState.getInt(STEP_POSITION, 0);
+            recipe = savedInstanceState.getParcelable(RECIPE_ARG);
+
+        } else {
 
             Log.i("state","null");
 
@@ -106,46 +111,63 @@ public class RecipeItemDetailActivity extends AppCompatActivity implements StepD
 
                 }
 
-                previous.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
 
-                        finish();
-
-                        Intent intent = new Intent(RecipeItemDetailActivity.this, RecipeItemDetailActivity.class);
-                        intent.putExtra(RecipeItemDetailActivity.RECIPE_ARG, recipe);
-                        intent.putExtra(RecipeItemDetailActivity.STEP_POSITION, position-1);
-
-                        startActivity(intent);
-
-
-                    }
-                });
-
-                next.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-
-                        finish();
-
-                        Intent intent = new Intent(RecipeItemDetailActivity.this, RecipeItemDetailActivity.class);
-                        intent.putExtra(RecipeItemDetailActivity.RECIPE_ARG, recipe);
-                        intent.putExtra(RecipeItemDetailActivity.STEP_POSITION, position+1);
-
-                        startActivity(intent);
-
-                    }
-                });
 
             }
 
-        } else {
-
-            Log.i("state","not null");
-
         }
+
+        previous.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                finish();
+
+                Intent intent = new Intent(RecipeItemDetailActivity.this, RecipeItemDetailActivity.class);
+                intent.putExtra(RecipeItemDetailActivity.RECIPE_ARG, recipe);
+                intent.putExtra(RecipeItemDetailActivity.STEP_POSITION, position-1);
+
+                startActivity(intent);
+
+
+            }
+        });
+
+        next.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                finish();
+
+                Intent intent = new Intent(RecipeItemDetailActivity.this, RecipeItemDetailActivity.class);
+                intent.putExtra(RecipeItemDetailActivity.RECIPE_ARG, recipe);
+                intent.putExtra(RecipeItemDetailActivity.STEP_POSITION, position+1);
+
+                startActivity(intent);
+
+            }
+        });
+
     }
 
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        if(position != 0) {
+            outState.putInt(STEP_POSITION, position);
+        }
+
+        if(recipe != null) {
+            outState.putParcelable(RECIPE_ARG, recipe);
+        }
+
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -155,27 +177,4 @@ public class RecipeItemDetailActivity extends AppCompatActivity implements StepD
         return true;
     }
 
-    @Override
-    public void onLandscape() {
-
-        getSupportActionBar().hide();
-
-        View decorView = getWindow().getDecorView();
-        // Hide Status Bar.
-        int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
-        decorView.setSystemUiVisibility(uiOptions);
-
-    }
-
-    @Override
-    public void onPortrait() {
-
-        getSupportActionBar().show();
-
-        View decorView = getWindow().getDecorView();
-        int uiOptions = View.SYSTEM_UI_FLAG_VISIBLE;
-        decorView.setSystemUiVisibility(uiOptions);
-
-
-    }
 }
