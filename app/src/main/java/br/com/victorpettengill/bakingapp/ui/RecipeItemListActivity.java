@@ -55,22 +55,31 @@ public class RecipeItemListActivity extends AppCompatActivity {
             mTwoPane = true;
         }
 
-        setupRecyclerView(recyclerView);
+        setupRecyclerView(savedInstanceState, recyclerView);
     }
 
-    private void setupRecyclerView(RecyclerView recyclerView) {
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+    }
+
+    private void setupRecyclerView(Bundle savedInstanceState, RecyclerView recyclerView) {
 
         if(mTwoPane) {
 
-            ArrayList<Ingredient> ingredients = recipe.getIngredients();
+            if(savedInstanceState == null) {
 
-            Bundle arguments = new Bundle();
-            arguments.putParcelableArrayList(IngrendientDetailFragment.INGREDIENT_ARG, ingredients);
-            IngrendientDetailFragment fragment = new IngrendientDetailFragment();
-            fragment.setArguments(arguments);
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.recipeitem_detail_container, fragment)
-                    .commit();
+                ArrayList<Ingredient> ingredients = recipe.getIngredients();
+
+                Bundle arguments = new Bundle();
+                arguments.putParcelableArrayList(IngrendientDetailFragment.INGREDIENT_ARG, ingredients);
+                IngrendientDetailFragment fragment = new IngrendientDetailFragment();
+                fragment.setArguments(arguments);
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.recipeitem_detail_container, fragment)
+                        .commit();
+
+            }
 
         }
 
